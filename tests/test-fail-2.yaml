@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bootc-edge-app-docker
+spec:
+  containers:
+  - image: quay.io/clwalsh/bootc/bootc-docker
+    name: bootc-edge-app-docker
+    imagePullPolicy: Always  
+  nodeSelector:
+    kubernetes.io/role: agent
+    type: virtual-kubelet
+  tolerations:
+  - key: virtual-kubelet.io/provider
+    operator: Exists

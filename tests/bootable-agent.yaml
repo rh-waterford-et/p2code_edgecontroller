@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bootc-agent
+spec:
+  containers:
+  - image: quay.io/clwalsh/bootc-agent
+    name: bootc-agent
+    imagePullPolicy: Always  

@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: virtual-kubelet
+  namespace: virtual-kubelet
+  labels:
+    app: virtual-kubelet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: virtual-kubelet
+  template:
+    metadata:
+      labels:
+        app: virtual-kubelet
+    spec:
+      serviceAccountName: virtual-kubelet
+      containers:
+      - name: virtual-kubelet
+        image: quay.io/clwalsh/virtual-kubelet
+        imagePullPolicy: Always
+        env:
+          - name: BROKER_USERNAME
+            value: default_user_YViO-zmM8tjU9rduaNo
+            # valueFrom: secretKeyRef  use default secret for rabbitmq in namespace
+          - name: BROKER_PASSWORD
+            value: ocK5aBXkVv0iIDXtl94EVERxe9vMT8V-
+          - name: BROKER_HOST
+            value: "10.1.6.162"
+          - name: BROKER_PORT
+            value: "30992"
+        # command: ["/usr/bin/virtual-kubelet"]
+      # args: [""]
+
+
+
+
