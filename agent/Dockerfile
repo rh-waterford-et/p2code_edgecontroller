@@ -1,8 +1,9 @@
+# docker.io/library/golang:1.23
 FROM golang:1.23 as build
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
-COPY agent/agent.go agent.go
+COPY agent.go agent.go
 RUN CGO_ENABLED=0 GOOS=linux go build -o bin/agent 
 
 FROM quay.io/fedora/fedora-bootc:40
