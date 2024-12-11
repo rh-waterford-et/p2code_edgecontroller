@@ -14,7 +14,15 @@ import (
 	sysinfo "github.com/elastic/go-sysinfo"
 	cron "github.com/go-co-op/gocron/v2"
 	amqp "github.com/rabbitmq/amqp091-go"
+	yaml "gopkg.in/yaml.v3"
 )
+
+type AMQPConnection struct {
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+}
 
 // Can reuse for updates on the machine status
 // Possible library https://pkg.go.dev/github.com/zcalusic/sysinfo
@@ -41,11 +49,7 @@ func failOnError(err error, msg string) {
 }
 
 func main() {
-	user := "default_user_YViO-zmM8tjU9rduaNo"
-	password := "ocK5aBXkVv0iIDXtl94EVERxe9vMT8V-"
-	host := "10.1.6.162"
-	port := "30992" // NOTE dynamic port assigned - fix later
-	amqpConn := fmt.Sprintf("amqp://%s:%s@%s:%s/", user, password, host, port)
+	amqpConn := getAMQPConnection()
 	conn, err := amqp.Dial(amqpConn)
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
@@ -129,6 +133,21 @@ func main() {
 	}()
 
 	<-forever
+}
+
+func getAMQPConnection() string {
+	yamlFile, err := os.ReadFile("/etc/amqp-config.yaml")
+	failOnError(err, "Failed to read AMQP config file")
+
+	var amqpConn AMQPConnection
+	err = yaml.Unmarshal(yamlFile, &amqpConn)
+	failOnError(err, "Failed to unmarshal AMQP config file")
+
+	user := amqpConn.User
+	password := amqpConn.Password
+	host := amqpConn.Host
+	port := amqpConn.Port
+	return fmt.Sprintf("amqp://%s:%s@%s:%s/", user, password, host, port)
 }
 
 func registerDevice(ch *amqp.Channel) {
